@@ -1,0 +1,27 @@
+/* HOME: CRYPTO WATCH */
+#cwatch_1{
+	background-color: lavenderblush;
+}
+#cwatch_controls{
+	position: relative;
+}
+.cwatchDivContainer{
+	/* display:inline-block;
+	width: 180px;
+	height:150px;
+	cursor:pointer;
+	margin: 2px; */
+	display          : inline-block;
+	/* background-color : lavenderblush; */
+	background-color : white;
+	text-align       : center;
+	vertical-align   : top;
+	border: 2px solid gray;
+	margin           : 2px;
+	border-radius: 5px;
+	padding: 2px;
+}
+#toggleFullscreen{
+	position: absolute;
+	right: 0px;
+}
