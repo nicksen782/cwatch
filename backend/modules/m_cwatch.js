@@ -322,13 +322,13 @@ let _MOD = {
 	
 						// Save some extra data to the record.
 						rec.priceChangesPercent = {
-							"p_1h"   : rec.data.price_change_percentage_1h_in_currency,
-							"p_24h"  : rec.data.price_change_percentage_24h_in_currency,
-							"p_7d"   : rec.data.price_change_percentage_7d_in_currency,
-							"p_14d"  : rec.data.price_change_percentage_14d_in_currency,
-							"p_30d"  : rec.data.price_change_percentage_30d_in_currency,
-							"p_200d" : rec.data.price_change_percentage_200d_in_currency,
-							"p_1y"   : rec.data.price_change_percentage_1y_in_currency,
+							"1h"   : rec.data.price_change_percentage_1h_in_currency,
+							"24h"  : rec.data.price_change_percentage_24h_in_currency,
+							"7d"   : rec.data.price_change_percentage_7d_in_currency,
+							"14d"  : rec.data.price_change_percentage_14d_in_currency,
+							"30d"  : rec.data.price_change_percentage_30d_in_currency,
+							"200d" : rec.data.price_change_percentage_200d_in_currency,
+							"1y"   : rec.data.price_change_percentage_1y_in_currency,
 						};
 						rec.last_updated = rec.data.last_updated ;
 						rec["debug"] = {

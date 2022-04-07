@@ -85,7 +85,7 @@ let cwatch = {
 			let ts = (Math.random()*100000).toFixed(0);
 
 			// Generate the url.
-			let url = `/getCwatchCharts?coingeckoids=${list.join(',')}&ts=${ts}`;
+			let url = `getCwatchCharts?coingeckoids=${list.join(',')}&ts=${ts}`;
 
 			// Make the request. 
 			document.getElementById("cwatch_loading").innerText="REQUESTING";
@@ -107,6 +107,18 @@ let cwatch = {
 			document.getElementById("cwatch_loading").innerText="LOADING: IMAGES";
 			let proms = [];
 			let frag = document.createDocumentFragment();
+
+			// Auto-size to fit. 
+			let cwatch_1  = document.getElementById("cwatch_1");
+			let cols      = parseInt(cwatch_1.offsetWidth / (205+4));
+			let rows      = parseInt(cwatch_1.offsetHeight / (160+4));
+			let cssWidth  = Math.floor(cwatch_1.offsetWidth / cols) *0.95;
+			let cssheight = Math.floor(cwatch_1.offsetHeight / rows)*0.95;
+			let useAutoSize = false;
+			
+			// cwatch_1.offsetHeight;
+			// cwatch_1.offsetWidth;
+
 			for(let i=0; i<list.length; i+=1){
 				// This is an effort to ensure that the coin widgets always appear in the specified order.
 				// let rec = resp.find(function(r){ return r.coingeckoid == list[i]; });
@@ -117,37 +129,46 @@ let cwatch = {
 					new Promise(async function(res_i, rej_i){
 						let rec = resp[i];
 						let img = new Image();
-						img.onload = function(){
-							let div1 = document.createElement("div");
-							div1.classList.add("cwatchDivContainer");
 
-							// Create the hover title.
-							div1.title = "";
-							let changes = {
-								"1h"   : rec.priceChangesPercent["p_1h"],
-								"24h"  : rec.priceChangesPercent["p_24h"],
-								"* 7d" : rec.priceChangesPercent["p_7d"],
-								"14d"  : rec.priceChangesPercent["p_14d"],
-								"30d"  : rec.priceChangesPercent["p_30d"],
-								"200d" : rec.priceChangesPercent["p_200d"],
-								"1y"   : rec.priceChangesPercent["p_1y"],
-							};
-							for(let k in changes){
-								// Some of the values might not actually be there. 
-								try{
-									changes[k] = changes[k].toFixed(2).trim();
-									changes[k] = changes[k].includes("-") ? (" - " + Math.abs(changes[k]) ) : (" + " + Math.abs(changes[k]) );
-									div1.title += "\n"+k+" change: " + (changes[k] ) + "%";
-								}
-								catch(e){
-									// console.log("MISSING DATA:", k, rec.coingeckoid);
-								}
+						let div1 = document.createElement("div");
+						div1.classList.add("cwatchDivContainer");
+						// Create the hover title.
+						div1.title = "CHANGE %:";
+						let changes = rec.priceChangesPercent;
+						// let changes = {
+						// 	"1h"   : rec.priceChangesPercent["p_1h"],
+						// 	"24h"  : rec.priceChangesPercent["p_24h"],
+						// 	"* 7d" : rec.priceChangesPercent["p_7d"],
+						// 	"14d"  : rec.priceChangesPercent["p_14d"],
+						// 	"30d"  : rec.priceChangesPercent["p_30d"],
+						// 	"200d" : rec.priceChangesPercent["p_200d"],
+						// 	"1y"   : rec.priceChangesPercent["p_1y"],
+						// };
+						for(let k in changes){
+							// Some of the values might not actually be there. 
+							try{
+								changes[k] = changes[k].toFixed(2).trim();
+								changes[k] = changes[k].includes("-") ? (" - " + Math.abs(changes[k]) ) : (" + " + Math.abs(changes[k]) );
+								div1.title += "\n  "+k+" : " + (changes[k] ) + "%";
 							}
-
-							// Create canvas.
-							let canvas = document.createElement("canvas");
+							catch(e){
+								// console.log("MISSING DATA:", k, rec.coingeckoid);
+							}
+						}
+						// Create canvas.
+						let canvas = document.createElement("canvas");
+						canvas.style["cursor"] = "pointer";
+						canvas.addEventListener("click", function(){ window.open(rec.url, "_blank"); }, false);
+						
+						img.onload = function(){
 							canvas.width = img.width;
 							canvas.height = img.height;
+							
+							if(useAutoSize){
+								canvas.style.width = cssWidth + "px";
+								canvas.style.height = cssheight + "px";
+							}
+							
 							let ctx = canvas.getContext('2d');
 							ctx.imageSmoothingEnabled       = false;
 							ctx.webkitImageSmoothingEnabled = false;
@@ -155,15 +176,10 @@ let cwatch = {
 							ctx.msImageSmoothingEnabled     = false;
 							ctx.oImageSmoothingEnabled      = false;
 							ctx.drawImage(img, 0, 0, img.width, img.height);
-							canvas.style["cursor"] = "pointer";
-							canvas.addEventListener("click", function(){ window.open(rec.url, "_blank"); }, false);
-							
-							// div1.style['border-color'] = "green";
-							div1.appendChild(canvas);
-
-							frag.appendChild(div1);
 							res_i();
 						};
+						div1.appendChild(canvas);
+						frag.appendChild(div1);
 						img.src = rec.png;
 					})
 				);
@@ -291,41 +307,51 @@ let cwatch = {
 			cwatch.init();
 		}
 	},
+
+	addEventlisteners: function(){
+		// Full-screen toggle.
+		document.getElementById("toggleFullscreen").addEventListener("click", cwatch.toggleFullscreen, false);
+
+		// Refresh button.
+		document.getElementById("cwatch_refreshPage").addEventListener("click", function(){ window.location.reload(); }, false);
+
+		// Timer button activation toggle.
+		document.getElementById("cwatch_timerActivate").addEventListener("click", cwatch.timerToggle, false);
+
+		// Turn the timer on.
+		cwatch.timerToggle();
+	},
 };
 
 window.onload = async function(){
 	window.onload = null;
 
 	let resp;
-	let url = "/getCoinList";
+	let url = "getCoinList";
 	try{ resp = await m_fetch.getjson(url); cwatch.coins = resp;}
 	catch(e){ resp = { error: e }; }
 	
+	cwatch.addEventlisteners();
+
 	// document.getElementById("getRoutePaths1").addEventListener("click", async function(){
 	// 	let resp;
-	// 	let url = "/getRoutePaths?type=manual";
+	// 	let url = "getRoutePaths?type=manual";
 	// 	try{ resp = await m_fetch.getjson(url); cwatch.coins = resp;}
 	// 	catch(e){ resp = { error: e }; }
 	// 	console.log(resp);
 	// }, false);
 	// document.getElementById("getRoutePaths2").addEventListener("click", async function(){
 	// 	let resp;
-	// 	let url = "/getRoutePaths?type=express";
+	// 	let url = "getRoutePaths?type=express";
 	// 	try{ resp = await m_fetch.getjson(url); cwatch.coins = resp;}
 	// 	catch(e){ resp = { error: e }; }
 	// 	console.log(resp);
 	// }, false);
 	// document.getElementById("getRoutePaths3").addEventListener("click", async function(){
 	// 	let resp;
-	// 	let url = "/getRoutePaths?type=both";
+	// 	let url = "getRoutePaths?type=both";
 	// 	try{ resp = await m_fetch.getjson(url); cwatch.coins = resp;}
 	// 	catch(e){ resp = { error: e }; }
 	// 	console.log(resp);
 	// }, false);
-	
-	// Timer button activation toggle.
-	document.getElementById("cwatch_timerActivate").addEventListener("click", cwatch.timerToggle, false);
-	cwatch.timerToggle();
-
-	document.getElementById("toggleFullscreen").addEventListener("click", cwatch.toggleFullscreen, false);
 };

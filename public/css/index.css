@@ -1,6 +1,7 @@
 /* HOME: CRYPTO WATCH */
 #cwatch_1{
 	background-color: lavenderblush;
+	height: calc(100vh - 40px);
 }
 #cwatch_controls{
 	position: relative;
@@ -22,6 +23,12 @@
 	padding: 2px;
 }
 #toggleFullscreen{
-	position: absolute;
-	right: 0px;
+	/* position: absolute; */
+	/* right: 0px; */
+	float:right;
+}
+#cwatch_refreshPage{
+	/* position: absolute; */
+	/* right: 0px; */
+	float:right;
 }
